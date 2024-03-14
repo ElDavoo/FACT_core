@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from contextlib import suppress
 from http import HTTPStatus
-from os import getgid, getuid
+from os import getgid, getuid, getenv
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -34,6 +34,8 @@ class ExtractionContainer:
         self.container_id = None
         self.exception = value
         self._adapter = HTTPAdapter(max_retries=Retry(total=3, backoff_factor=0.1))
+        self.kwnet = {'network_mode': 'container:' + getenv('HOSTNAME') } if getenv('INSIDE_DOCKER') is not None else {}
+
 
     def start(self):
         if self.container_id is not None:
@@ -58,6 +60,7 @@ class ExtractionContainer:
             remove=True,
             environment={'CHMOD_OWNER': f'{getuid()}:{getgid()}'},
             entrypoint='gunicorn --timeout 600 -w 1 -b 0.0.0.0:5000 server:app',
+            **self.kwnet
         )
         self.container_id = container.id
         logging.info(f'Started unpack worker {self.id_}')
