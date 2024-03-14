@@ -51,7 +51,7 @@ class ExtractionContainer:
         volume = Mount('/tmp/extractor', self.tmp_dir.name, read_only=False, type='bind')
         container = DOCKER_CLIENT.containers.run(
             image=EXTRACTOR_DOCKER_IMAGE,
-            ports={'5000/tcp': self.port},
+            ports={'9900/tcp': self.port},
             mem_limit=f'{config.backend.unpacking.memory_limit}m',
             mounts=[volume],
             volumes={'/dev': {'bind': '/dev', 'mode': 'rw'}},
@@ -59,7 +59,7 @@ class ExtractionContainer:
             detach=True,
             remove=True,
             environment={'CHMOD_OWNER': f'{getuid()}:{getgid()}'},
-            entrypoint='gunicorn --timeout 600 -w 1 -b 0.0.0.0:5000 server:app',
+            entrypoint='gunicorn --timeout 600 -w 1 -b 0.0.0.0:9900 server:app',
             **self.kwnet
         )
         self.container_id = container.id
@@ -111,7 +111,7 @@ class ExtractionContainer:
         return any(tag == EXTRACTOR_DOCKER_IMAGE for tag in container.image.attrs['RepoTags'])
 
     def _has_same_port(self, container: Container) -> bool:
-        return any(entry['HostPort'] == str(self.port) for entry in container.ports.get('5000/tcp', []))
+        return any(entry['HostPort'] == str(self.port) for entry in container.ports.get('9900/tcp', []))
 
     def get_logs(self) -> str:
         container = self._get_container()
