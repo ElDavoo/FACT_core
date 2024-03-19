@@ -67,7 +67,11 @@ class FactBase:
 
     def _register_signal_handlers(self):
         # Check whether the process was started by start_fact.py
-        parent = ' '.join(psutil.Process(os.getppid()).cmdline())
+        try:
+            parent = ' '.join(psutil.Process(os.getppid()).cmdline())
+        except psutil.NoSuchProcess:
+            # There is no parent (we are in docker)
+            parent = ''
         started_by_start_fact_py = 'start_fact.py' in parent or 'start_all_installed_fact_components' in parent
         if started_by_start_fact_py:
             signal.signal(signal.SIGUSR1, self.shutdown_listener)
