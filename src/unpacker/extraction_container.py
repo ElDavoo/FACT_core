@@ -34,7 +34,7 @@ class ExtractionContainer:
         self.container_id = None
         self.exception = value
         self._adapter = HTTPAdapter(max_retries=Retry(total=3, backoff_factor=0.1))
-        self.kwnet = {'network_mode': 'container:' + getenv('HOSTNAME') } if getenv('INSIDE_DOCKER') is not None else {}
+        self.network_mode = 'container:' + getenv('HOSTNAME') if getenv('INSIDE_DOCKER') is not None else None
 
 
     def start(self):
@@ -46,12 +46,14 @@ class ExtractionContainer:
         except APIError as exception:
             if 'port is already allocated' in str(exception):
                 self._recover_from_port_in_use(exception)
+            else:
+                raise
 
     def _start_container(self):
         volume = Mount('/tmp/extractor', self.tmp_dir.name, read_only=False, type='bind')
         container = DOCKER_CLIENT.containers.run(
             image=EXTRACTOR_DOCKER_IMAGE,
-            ports={'9900/tcp': self.port},
+            ports={f'{self.port}/tcp': self.port} if self.network_mode is None else None,
             mem_limit=f'{config.backend.unpacking.memory_limit}m',
             mounts=[volume],
             volumes={'/dev': {'bind': '/dev', 'mode': 'rw'}},
@@ -59,8 +61,8 @@ class ExtractionContainer:
             detach=True,
             remove=True,
             environment={'CHMOD_OWNER': f'{getuid()}:{getgid()}'},
-            entrypoint='gunicorn --timeout 600 -w 1 -b 0.0.0.0:9900 server:app',
-            **self.kwnet
+            entrypoint=f'gunicorn --timeout 600 -w 1 -b 0.0.0.0:{self.port} server:app',
+            network_mode=self.network_mode,
         )
         self.container_id = container.id
         logging.info(f'Started unpack worker {self.id_}')
@@ -111,7 +113,7 @@ class ExtractionContainer:
         return any(tag == EXTRACTOR_DOCKER_IMAGE for tag in container.image.attrs['RepoTags'])
 
     def _has_same_port(self, container: Container) -> bool:
-        return any(entry['HostPort'] == str(self.port) for entry in container.ports.get('9900/tcp', []))
+        return any(entry['HostPort'] == str(self.port) for entry in container.ports.get(f'{self.port}/tcp', []))
 
     def get_logs(self) -> str:
         container = self._get_container()
