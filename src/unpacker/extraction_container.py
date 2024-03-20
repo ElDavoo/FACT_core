@@ -63,6 +63,7 @@ class ExtractionContainer:
             environment={'CHMOD_OWNER': f'{getuid()}:{getgid()}'},
             entrypoint=f'gunicorn --timeout 600 -w 1 -b 0.0.0.0:{self.port} server:app',
             network_mode=self.network_mode,
+            ulimits=[docker.types.Ulimit(name='nofile', soft=20000, hard=50000)]
         )
         self.container_id = container.id
         logging.info(f'Started unpack worker {self.id_}')
