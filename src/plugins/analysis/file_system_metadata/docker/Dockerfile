@@ -1,4 +1,4 @@
-FROM fkiecad/fact_extractor:latest
+FROM fact_extractor:latest
 
 COPY mount.py /root/
 
