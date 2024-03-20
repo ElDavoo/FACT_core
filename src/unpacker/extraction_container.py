@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from requests.adapters import Response
 
 DOCKER_CLIENT = docker.from_env()
-EXTRACTOR_DOCKER_IMAGE = 'fkiecad/fact_extractor'
+EXTRACTOR_DOCKER_IMAGE = 'fact_extractor'
 
 
 class ExtractionContainer:
