@@ -24,6 +24,7 @@ if TYPE_CHECKING:
 
 DOCKER_CLIENT = docker.from_env()
 EXTRACTOR_DOCKER_IMAGE = 'fact_extractor'
+FALLBACK_EXTRACTOR_DOCKER_IMAGE = 'fkiecad/fact_extractor'
 
 
 class ExtractionContainer:
@@ -51,6 +52,14 @@ class ExtractionContainer:
 
     def _start_container(self):
         volume = Mount('/tmp/extractor', self.tmp_dir.name, read_only=False, type='bind')
+        # check if the local image is available
+        try:
+            DOCKER_CLIENT.images.get(EXTRACTOR_DOCKER_IMAGE)
+        except docker.errors.ImageNotFound:
+            logging.info('Local image not found, using default image {FALLBACK_EXTRACTOR_DOCKER_IMAGE}')
+            EXTRACTOR_DOCKER_IMAGE = FALLBACK_EXTRACTOR_DOCKER_IMAGE
+            
+
         container = DOCKER_CLIENT.containers.run(
             image=EXTRACTOR_DOCKER_IMAGE,
             ports={f'{self.port}/tcp': self.port} if self.network_mode is None else None,
