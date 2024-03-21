@@ -250,7 +250,7 @@ def check_distribution(allow_unsupported=False):
         return 'fedora'
     msg = (
         f'Your Distribution ({distro.id()} {distro.version()}) is not supported. '
-        'FACT Installer requires Ubuntu 20.04/22.04, Debian 11/12 or compatible!'
+        'FACT Installer requires Ubuntu 20.04/22.04/24.04, Debian 11/12 or compatible!'
     )
     if allow_unsupported:
         logging.info(msg)
