@@ -54,9 +54,10 @@ class ExtractionContainer:
         volume = Mount('/tmp/extractor', self.tmp_dir.name, read_only=False, type='bind')
         # check if the local image is available
         try:
+            global EXTRACTOR_DOCKER_IMAGE
             DOCKER_CLIENT.images.get(EXTRACTOR_DOCKER_IMAGE)
         except docker.errors.ImageNotFound:
-            logging.info('Local image not found, using default image {FALLBACK_EXTRACTOR_DOCKER_IMAGE}')
+            logging.info(f'Local image not found, using default image {FALLBACK_EXTRACTOR_DOCKER_IMAGE}')
             EXTRACTOR_DOCKER_IMAGE = FALLBACK_EXTRACTOR_DOCKER_IMAGE
             
 
