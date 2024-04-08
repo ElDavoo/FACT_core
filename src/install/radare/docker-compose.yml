@@ -1,5 +1,3 @@
-version: '2'
-
 services:
     app:
         image: fkiecad/radare-web-gui:latest
