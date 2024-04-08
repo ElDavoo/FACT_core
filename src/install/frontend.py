@@ -150,10 +150,6 @@ def main(skip_docker, radare, nginx, distribution):
         pkgs = read_package_list_from_file(INSTALL_DIR / 'dnf-pkgs-frontend.txt')
         dnf_install_packages(*pkgs)
 
-    # npm doesn't get installed in noble
-    if distribution == 'noble':
-        apt_install_packages(*['npm'])
-
     # flask-security is not maintained anymore and replaced by flask-security-too.
     # Since python package naming conflicts are not resolved automatically, we remove flask-security manually.
     pip = 'pip' if is_virtualenv() else 'sudo -EH pip3'
