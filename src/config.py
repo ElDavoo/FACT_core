@@ -106,6 +106,7 @@ class Frontend(Common):
 
     max_elements_per_chart: int = 10
 
+    base_url: str
     radare2_url: str
 
     hasura: Frontend.Hasura

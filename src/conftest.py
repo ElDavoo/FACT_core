@@ -139,6 +139,7 @@ def frontend_config(request, common_config) -> config.Frontend:
         'ajax_stats_reload_time': 10000,
         'max_elements_per_chart': 10,
         'radare2_url': 'http://localhost:8000',
+        'base_url': 'http://localhost:5000',
         'communication_timeout': 60,
         'authentication': {
             'enabled': False,
