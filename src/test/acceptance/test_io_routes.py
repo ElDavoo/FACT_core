@@ -31,7 +31,7 @@ class TestAcceptanceIoRoutes:
 
         response = test_client.get(f'/radare-view/{self.test_fw.uid}')
         assert '200' in response.status, 'radare view link failed'
-        assert b'with url: /v1/retrieve' in response.data, 'error coming from wrong request'
+        assert b'with url: /radare-api/v1/retrieve' in response.data, 'error coming from wrong request'
         assert b'Failed to establish a new connection' in response.data, 'connection shall fail'
 
     def test_ida_download(self, backend_db, test_client):
