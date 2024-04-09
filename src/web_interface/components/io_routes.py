@@ -113,7 +113,7 @@ class IORoutes(ComponentBase):
         binary, _ = result
         try:
             host = config.frontend.radare2_url
-            response = requests.post(f'{host}/v1/retrieve', data=binary, verify=False)
+            response = requests.post(f'{host}/radare-api/v1/retrieve', data=binary, verify=False)
             if response.status_code != http.HTTPStatus.OK:
                 raise TimeoutError(response.text)
             target_link = f"{host}{response.json()['endpoint']}m/"
