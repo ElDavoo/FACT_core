@@ -108,6 +108,8 @@ class IORoutes(ComponentBase):
         binary, _ = result
         try:
             host = config.frontend.radare2_url
+            if host is None or host == '':
+                host = config.frontend.base_url
             response = requests.post(f'{host}/radare-api/v1/retrieve', data=binary, verify=False)
             if response.status_code != 200:  # noqa: PLR2004
                 raise TimeoutError(response.text)
