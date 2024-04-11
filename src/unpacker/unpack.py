@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from time import time
+from time import sleep, time
 from typing import TYPE_CHECKING, Optional
 
 import config
@@ -106,6 +106,10 @@ class Unpacker(UnpackBase):
         return list(extracted_files.values())
 
     def _check_path(self, file_object: FileObject):
+        i = 0
+        while not Path(file_object.file_path).exists() and i < 50:
+            sleep(0.1)
+            
         if not Path(file_object.file_path).exists():
             logging.error(f'File with path "{file_object.file_path}" not found ({file_object.uid}).')
             error = ExtractionError('File not found')
