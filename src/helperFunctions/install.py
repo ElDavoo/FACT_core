@@ -256,7 +256,6 @@ def check_distribution(allow_unsupported=False):
         logging.info(msg)
         return None
     logging.critical(msg)
-    sys.exit(1)
 
 
 def install_pip_packages(package_file: Path):
