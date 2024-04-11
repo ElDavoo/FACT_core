@@ -35,8 +35,8 @@ def run_docker_container(
 
     try:
         container = client.containers.run(image, **kwargs)
-    except (ImageNotFound, APIError):
-        logging.warning(f'[{logging_label}]: encountered docker error while processing')
+    except (ImageNotFound, APIError) as e:
+        logging.warning(f'[{logging_label}]: encountered docker error while processing: {e}')
         raise
 
     try:
@@ -51,11 +51,11 @@ def run_docker_container(
     except ReadTimeout:
         logging.warning(f'[{logging_label}]: timeout while processing')
         raise
-    except RequestException:
-        logging.warning(f'[{logging_label}]: connection error while processing')
+    except RequestException as e:
+        logging.warning(f'[{logging_label}]: connection error while processing: {e}')
         raise
-    except APIError:
-        logging.warning(f'[{logging_label}]: encountered docker error while processing')
+    except APIError as e:
+        logging.warning(f'[{logging_label}]: encountered docker error while processing: {e}')
         raise
     finally:
         with suppress(DockerException):
