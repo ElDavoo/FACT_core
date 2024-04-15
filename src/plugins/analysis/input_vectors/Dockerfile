@@ -1,4 +1,4 @@
-FROM fkiecad/radare-web-gui:latest
+FROM docker-radare-web-gui
 
 # Create non-root user
 RUN useradd -m r2 && \
