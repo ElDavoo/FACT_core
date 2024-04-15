@@ -27,8 +27,35 @@ def run_docker_container(
     :raises requests.exceptions.ReadTimeout: If the timeout was reached
     :raises docker.errors.APIError: If the communication with docker fails
     """
-    # TODO verify that bind mounts in kwargs["mounts"] only contain files in docker-mount-base-dir
-    # If they don't just copy them to docker-mount-base-dir and change the mounts
+
+    mounts = kwargs.get('mounts', [])
+    temp_files = []
+    for mount in mounts:
+
+        source: str = mount['Source']
+
+        if source.startswith(config.backend.docker_mount_base_dir):
+            continue
+        if source.startswith('/dev'):
+            continue
+
+        # New file names have a random suffix to avoid conflicts
+        new_target: str = os.path.join(config.backend.docker_mount_base_dir,
+                                       f"{os.path.basename(mount['Source'])}_{''
+                                       .join(random.choices(string.ascii_letters, k=4))}")
+
+        try:
+
+            if os.path.isdir(source):
+                shutil.copytree(source, new_target)
+            else:
+                shutil.copy(source, new_target)
+            temp_files.append(new_target)
+
+        except Exception as e:
+            logging.error(f"[{logging_label}]: Error while copying {mount['Source']} to {new_target}: {e}")
+
+        mount['Source'] = new_target
 
     client = docker.client.from_env()
     kwargs.setdefault('detach', True)
@@ -58,6 +85,16 @@ def run_docker_container(
         logging.warning(f'[{logging_label}]: encountered docker error while processing: {e}')
         raise
     finally:
+
+        for temp_file in temp_files:
+            try:
+                if os.path.isdir(temp_file):
+                    shutil.rmtree(temp_file)
+                else:
+                    os.remove(temp_file)
+            except Exception as e:
+                logging.error(f"[{logging_label}]: Error while removing {temp_file}: {e}")
+
         with suppress(DockerException):
             container.stop()
             container.remove()
