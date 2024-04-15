@@ -50,6 +50,6 @@ class AnalysisPlugin(AnalysisBasePlugin):
         except (DockerException, OSError):
             file_object.processed_analysis[self.NAME]['failed'] = 'Analysis issues. It might not be complete.'
         except JSONDecodeError:
-            logging.error('[input_vectors]: Could not decode JSON output:', exc_info=True)
+            logging.error('[input_vectors]: Could not decode JSON output: {result.stdout}', exc_info=False)
 
         return file_object
