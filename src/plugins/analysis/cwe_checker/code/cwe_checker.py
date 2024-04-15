@@ -71,12 +71,12 @@ class AnalysisPlugin(AnalysisBasePlugin):
         )
         return result.stdout
 
-    def _run_cwe_checker_in_docker(self, file_object):
+    def _run_cwe_checker_in_docker(self, file_object, verbose: bool = False):
         result = run_docker_container(
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
             timeout=self.TIMEOUT - 30,
-            command='/input --json --quiet',
+            command='/input --json --verbose' if verbose else '/input --json --quiet',
             mounts=[
                 Mount('/input', file_object.file_path, type='bind'),
             ],
@@ -117,9 +117,19 @@ class AnalysisPlugin(AnalysisBasePlugin):
                 cwe_messages = self._parse_cwe_checker_output(output)
                 file_object.processed_analysis[self.NAME] = {'full': cwe_messages, 'summary': list(cwe_messages.keys())}
             except json.JSONDecodeError:
-                message = f'cwe_checker execution failed: {output}'
-                logging.error(f'{message}\nUID: {file_object.uid}', exc_info=True)
-                file_object.processed_analysis[self.NAME] = {'summary': [], 'failed': message}
+                # Let's do it again with verbose output
+                output = self._run_cwe_checker_in_docker(file_object, verbose=True)
+                if output is not None:
+                    try:
+                        cwe_messages = self._parse_cwe_checker_output(output)
+                        file_object.processed_analysis[self.NAME] = {
+                            'full': cwe_messages,
+                            'summary': list(cwe_messages.keys()),
+                        }
+                    except json.JSONDecodeError:
+                        message = f'cwe_checker execution failed: {output}'
+                        logging.error(f'{message}\nUID: {file_object.uid}', exc_info=False)
+                        file_object.processed_analysis[self.NAME] = {'summary': [], 'failed': message}
         else:
             message = 'Timeout or error during cwe_checker execution.'
             logging.error(f'{message}\nUID: {file_object.uid}')
