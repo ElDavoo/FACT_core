@@ -33,7 +33,7 @@ if TYPE_CHECKING:
 TIMEOUT_IN_SECONDS = 15
 EXECUTABLE = 'executable'
 EMPTY = '(no parameter)'
-DOCKER_IMAGE = 'fact/qemu-exec:alpine-3.18'
+DOCKER_IMAGE = 'fact/qemu-exec:alpine-3.19'
 QEMU_ERRORS = ['Unsupported syscall', 'Invalid ELF', 'uncaught target signal']
 CONTAINER_TARGET_PATH = '/opt/firmware_root'
 
