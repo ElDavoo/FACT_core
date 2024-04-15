@@ -36,6 +36,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
                 DOCKER_IMAGE,
                 # We explicitly don't want stderr to ignore "Cannot analyse at [...]"
                 combine_stderr_stdout=False,
+                remove=True,
                 logging_label=self.NAME,
                 timeout=TIMEOUT_IN_SECONDS,
                 command=CONTAINER_TARGET_PATH,

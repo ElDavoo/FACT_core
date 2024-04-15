@@ -21,7 +21,7 @@ class UsersAndPasswordsInstaller(AbstractPluginInstaller):
     base_path = Path(__file__).resolve().parent
 
     def install_docker_images(self):
-        self._build_docker_image('fact/john:alpine-3.18')
+        self._build_docker_image('fact/john:alpine-3.19')
 
     def install_files(self):
         if not JOHN_POT.is_file():
