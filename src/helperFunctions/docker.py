@@ -1,8 +1,13 @@
 import logging
 from contextlib import suppress
+import random
+import shutil
+import string
 from subprocess import CompletedProcess
 
+import config
 import docker
+import os
 from docker.errors import APIError, DockerException, ImageNotFound
 from requests.exceptions import ReadTimeout, RequestException
 
@@ -61,29 +66,32 @@ def run_docker_container(
     kwargs.setdefault('detach', True)
 
     try:
-        container = client.containers.run(image, **kwargs)
-    except (ImageNotFound, APIError) as e:
+        
+        container = client.containers.run(image, **kwargs)      
+        
+        try:
+            response = container.wait(timeout=timeout)
+            exit_code = response['StatusCode']
+            stdout = (
+                container.logs(stdout=True, stderr=False).decode()
+                if not combine_stderr_stdout
+                else container.logs(stdout=True, stderr=True).decode()
+            )
+            stderr = container.logs(stdout=False, stderr=True).decode() if not combine_stderr_stdout else None
+        except ReadTimeout:
+            logging.warning(f'[{logging_label}]: timeout while processing')
+            raise
+        except RequestException as e:
+            logging.warning(f'[{logging_label}]: connection error while processing: {e}')
+            raise
+        except APIError as e:
+            logging.warning(f'[{logging_label}]: encountered docker error while processing: {e}')
+            raise
+
+    except (ImageNotFound, APIError, ReadTimeout) as e:
         logging.warning(f'[{logging_label}]: encountered docker error while processing: {e}')
         raise
 
-    try:
-        response = container.wait(timeout=timeout)
-        exit_code = response['StatusCode']
-        stdout = (
-            container.logs(stdout=True, stderr=False).decode()
-            if not combine_stderr_stdout
-            else container.logs(stdout=True, stderr=True).decode()
-        )
-        stderr = container.logs(stdout=False, stderr=True).decode() if not combine_stderr_stdout else None
-    except ReadTimeout:
-        logging.warning(f'[{logging_label}]: timeout while processing')
-        raise
-    except RequestException as e:
-        logging.warning(f'[{logging_label}]: connection error while processing: {e}')
-        raise
-    except APIError as e:
-        logging.warning(f'[{logging_label}]: encountered docker error while processing: {e}')
-        raise
     finally:
 
         for temp_file in temp_files:
