@@ -30,7 +30,7 @@ from unpacker.unpack_base import UnpackBase
 if TYPE_CHECKING:
     from objects.file import FileObject
 
-TIMEOUT_IN_SECONDS = 15
+TIMEOUT_IN_SECONDS = 150
 EXECUTABLE = 'executable'
 EMPTY = '(no parameter)'
 DOCKER_IMAGE = 'fact/qemu-exec:alpine-3.19'
@@ -265,6 +265,7 @@ def get_docker_output(arch_suffix: str, file_path: str, root_path: Path) -> dict
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
             timeout=TIMEOUT_IN_SECONDS,
+            remove=True,
             command=command,
             mounts=[
                 Mount(CONTAINER_TARGET_PATH, str(root_path), type='bind'),
