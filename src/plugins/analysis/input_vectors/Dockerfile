@@ -9,6 +9,7 @@ RUN useradd -m r2 && \
 USER r2
 WORKDIR /home/r2
 ENV HOME /home/r2
+RUN echo "e cfg.json.str=base64" > ~/.radare2rc
 
 COPY internal/ /home/r2/input_vectors/
 
