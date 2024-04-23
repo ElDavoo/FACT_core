@@ -17,6 +17,7 @@ def run_eslint(file_path):
     result = run_docker_container(
         'cytopia/eslint',
         combine_stderr_stdout=False,
+        network_disabled=True,
         mounts=[
             Mount('/eslintrc.js', str(eslintrc_path), type='bind', read_only=True),
             Mount('/input.js', str(file_path), type='bind', read_only=True),
@@ -157,6 +158,7 @@ def run_rubocop(file_path: str) -> list[dict]:
     process = run_docker_container(
         'pipelinecomponents/rubocop:latest',
         combine_stderr_stdout=False,
+        network_disabled=True,
         mounts=[
             Mount(container_path, file_path, type='bind', read_only=True),
         ],
@@ -185,6 +187,7 @@ def run_phpstan(file_path):
     phpstan_p = run_docker_container(
         'ghcr.io/phpstan/phpstan',
         combine_stderr_stdout=False,
+        network_disabled=True,
         mounts=[
             Mount(container_path, file_path, type='bind', read_only=True),
         ],

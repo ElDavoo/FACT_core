@@ -43,6 +43,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
                     # We explicitly don't want stderr to ignore "Cannot analyse at [...]"
                     combine_stderr_stdout=False,
                     logging_label=self.NAME,
+                    network_disabled=True,
                     timeout=TIMEOUT_IN_SECONDS,
                     command=CONTAINER_TARGET_PATH,
                     mounts=[
