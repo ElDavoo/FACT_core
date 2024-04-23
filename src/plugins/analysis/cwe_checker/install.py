@@ -20,7 +20,7 @@ class CweCheckerInstaller(AbstractPluginInstaller):
     base_path = Path(__file__).resolve().parent
 
     def install_docker_images(self):
-        run_cmd_with_logging('docker pull fkiecad/cwe_checker:stable')
+        run_cmd_with_logging('docker pull fkiecad/cwe_checker:latest')
 
 
 # Alias for generic use
