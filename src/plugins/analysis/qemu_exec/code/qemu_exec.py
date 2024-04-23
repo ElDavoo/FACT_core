@@ -268,6 +268,7 @@ def get_docker_output(arch_suffix: str, file_path: str, root_path: Path) -> dict
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
             timeout=TIMEOUT_IN_SECONDS,
+            network_disabled=True,
             command=command,
             mounts=[
                 Mount(CONTAINER_TARGET_PATH, str(root_path), type='bind'),
