@@ -46,8 +46,7 @@ def run_docker_container(
 
         # New file names have a random suffix to avoid conflicts
         new_target: str = os.path.join(config.backend.docker_mount_base_dir,
-                                       f"{os.path.basename(mount['Source'])}_{''
-                                       .join(random.choices(string.ascii_letters, k=4))}")
+                                       f"{os.path.basename(mount['Source'])}_{''.join(random.choices(string.ascii_letters, k=4))}")
 
         try:
 

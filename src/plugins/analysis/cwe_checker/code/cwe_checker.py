@@ -66,6 +66,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
         result = run_docker_container(
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
+            network_disabled=True,
             timeout=60,
             command='--version',
         )
@@ -76,6 +77,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
             timeout=self.TIMEOUT - 30,
+            network_disabled=True,
             command='/input --json --verbose' if verbose else '/input --json --quiet',
             mounts=[
                 Mount('/input', file_object.file_path, type='bind'),

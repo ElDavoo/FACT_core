@@ -105,6 +105,7 @@ class AnalysisPlugin(YaraBasePlugin):
                     'fact/known-vulnerabilities',
                     logging_label=self.NAME,
                     timeout=60,
+                    network_disabled=True,
                     mounts=[
                         Mount('/io', tmp_dir, type='bind'),
                         Mount('/io/ghidra_input', file_path, type='bind', read_only=True),

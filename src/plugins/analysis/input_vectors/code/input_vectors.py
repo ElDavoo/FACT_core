@@ -38,6 +38,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
                 combine_stderr_stdout=False,
                 remove=True,
                 logging_label=self.NAME,
+                network_disabled=True,
                 timeout=TIMEOUT_IN_SECONDS,
                 command=CONTAINER_TARGET_PATH,
                 mounts=[

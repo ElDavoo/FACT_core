@@ -46,6 +46,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
                 DOCKER_IMAGE,
                 combine_stderr_stdout=True,
                 timeout=self.TIMEOUT,
+                network_disabled=True,
                 command=f'{mount} /results/',
                 mounts=[
                     Mount('/results/', str(folder.resolve()), type='bind'),

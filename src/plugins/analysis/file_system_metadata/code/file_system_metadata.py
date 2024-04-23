@@ -204,6 +204,7 @@ class AnalysisPlugin(AnalysisPluginV0, AnalysisBasePluginAdapterMixin):
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
             logging_label=self.NAME,
+            network_disabled=True,
             mounts=[
                 Mount('/work', input_dir, type='bind'),
             ],

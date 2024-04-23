@@ -69,6 +69,7 @@ class UnpackBase:
                 EXTRACTOR_DOCKER_IMAGE,
                 combine_stderr_stdout=True,
                 privileged=True,
+                network_disabled=True,
                 mem_limit=f'{config.backend.unpacking.memory_limit}m',
                 mounts=[
                     Mount('/dev/', '/dev/', type='bind'),
