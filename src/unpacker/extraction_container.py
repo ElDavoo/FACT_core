@@ -6,6 +6,7 @@ from http import HTTPStatus
 from os import getgid, getuid, getenv
 from pathlib import Path
 from typing import TYPE_CHECKING
+from time import sleep
 
 import docker
 import requests
@@ -47,7 +48,7 @@ class ExtractionContainer:
             if 'port is already allocated' in str(exception):
                 self._recover_from_port_in_use(exception)
             elif 'The container name' in str(exception) and 'is already in use' in str(exception):
-                logging.warning('worker container is already here')
+                self._recover_from_port_in_use(exception)
             else:
                 raise
 
@@ -97,9 +98,10 @@ class ExtractionContainer:
             container = self._get_container()
         container.stop(timeout=5)
         with suppress(DockerException):
+            container.wait(timeout=5)
             container.kill()
-        with suppress(DockerException):
-            container.remove()
+            container.remove(force=True)
+        sleep(1)
 
     def _get_container(self) -> Container:
         return DOCKER_CLIENT.containers.get(self.container_id)
@@ -111,21 +113,20 @@ class ExtractionContainer:
         self.start()
 
     def _recover_from_port_in_use(self, exception: Exception):
-        logging.warning('Extractor port already in use -> trying to remove old container...')
+        logging.warning('Extractor containers already around, trying to remove them...')
         for running_container in DOCKER_CLIENT.containers.list():
             if self._is_extractor_container(running_container) and self._has_same_port(running_container):
                 self._remove_container(running_container)
-                self._start_container()
-                return
-        logging.error('Could not free extractor port')
-        raise RuntimeError('Could not create extractor container') from exception
+        self._start_container()
 
     @staticmethod
     def _is_extractor_container(container: Container) -> bool:
-        return any(tag == EXTRACTOR_DOCKER_IMAGE for tag in container.image.attrs['RepoTags'])
+        return any(EXTRACTOR_DOCKER_IMAGE in tag or FALLBACK_EXTRACTOR_DOCKER_IMAGE in tag for tag in container.image.attrs['RepoTags'])
 
     def _has_same_port(self, container: Container) -> bool:
-        return any(entry['HostPort'] == str(self.port) for entry in container.ports.get(f'{self.port}/tcp', []))
+        return any(((entry['HostPort'] == str(self.port) for entry in container.ports.get(f'{self.port}/tcp', [])),
+                   getenv('INSIDE_DOCKER') is not None
+                    ))
 
     def get_logs(self) -> str:
         container = self._get_container()
