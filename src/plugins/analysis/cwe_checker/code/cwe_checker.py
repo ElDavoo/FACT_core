@@ -21,7 +21,7 @@ import config
 from analysis.PluginBase import AnalysisBasePlugin
 from helperFunctions.docker import run_docker_container
 
-DOCKER_IMAGE = 'fkiecad/cwe_checker:stable'
+DOCKER_IMAGE = 'fkiecad/cwe_checker:latest'
 
 
 class AnalysisPlugin(AnalysisBasePlugin):
