@@ -31,9 +31,9 @@ class AnalysisPlugin(AnalysisBasePlugin):
 
     NAME = 'cwe_checker'
     DESCRIPTION = (
-        'This plugin checks ELF binaries for several CWEs (Common Weakness Enumeration) like'
-        'CWE-243 (Creation of chroot Jail Without Changing Working Directory) and'
-        'CWE-676 (Use of Potentially Dangerous Function).'
+        'This plugin checks ELF binaries for several CWEs (Common Weakness Enumeration) like '
+        'CWE-243 (Creation of chroot Jail Without Changing Working Directory) and '
+        'CWE-676 (Use of Potentially Dangerous Function). '
         'Due to the nature of static analysis, this plugin may run for a long time.'
     )
     DEPENDENCIES = ['cpu_architecture', 'file_type']  # noqa: RUF012
