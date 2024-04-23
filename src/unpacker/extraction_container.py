@@ -37,7 +37,6 @@ class ExtractionContainer:
         self._adapter = HTTPAdapter(max_retries=Retry(total=3, backoff_factor=0.1))
         self.network_mode = 'container:' + getenv('HOSTNAME') if getenv('INSIDE_DOCKER') is not None else None
 
-
     def start(self):
         if self.container_id is not None:
             raise RuntimeError('Already running.')
@@ -47,6 +46,8 @@ class ExtractionContainer:
         except APIError as exception:
             if 'port is already allocated' in str(exception):
                 self._recover_from_port_in_use(exception)
+            elif 'The container name' in str(exception) and 'is already in use' in str(exception):
+                logging.warning('worker container is already here')
             else:
                 raise
 
@@ -60,7 +61,6 @@ class ExtractionContainer:
             logging.info(f'Local image not found, using default image {FALLBACK_EXTRACTOR_DOCKER_IMAGE}')
             EXTRACTOR_DOCKER_IMAGE = FALLBACK_EXTRACTOR_DOCKER_IMAGE
             
-
         container = DOCKER_CLIENT.containers.run(
             image=EXTRACTOR_DOCKER_IMAGE,
             ports={f'{self.port}/tcp': self.port} if self.network_mode is None else None,
@@ -73,7 +73,8 @@ class ExtractionContainer:
             environment={'CHMOD_OWNER': f'{getuid()}:{getgid()}'},
             entrypoint=f'gunicorn --timeout 600 -w 1 -b 0.0.0.0:{self.port} server:app',
             network_mode=self.network_mode,
-            ulimits=[docker.types.Ulimit(name='nofile', soft=20000, hard=50000)]
+            ulimits=[docker.types.Ulimit(name='nofile', soft=20000, hard=50000)],
+            name=f'fact_extractor_{self.id_}',
         )
         self.container_id = container.id
         logging.info(f'Started unpack worker {self.id_}')
