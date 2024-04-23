@@ -30,6 +30,7 @@ def extract_data_from_ghidra(input_file_data: bytes, key_strings: list[str], pat
                 DOCKER_IMAGE,
                 logging_label='FSR',
                 timeout=TIMEOUT,
+                network_disabled=True,
                 command=f'/work/ghidra_input {CONTAINER_TARGET_PATH}',
                 mounts=[
                     Mount(CONTAINER_TARGET_PATH, tmp_dir, type='bind'),
