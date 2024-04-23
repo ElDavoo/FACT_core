@@ -237,10 +237,10 @@ def _valid_execution_in_results(results: dict) -> bool:
 
 def _output_without_error_exists(docker_output: dict[str, str]) -> bool:
     try:
-        return any(
+        return any((
             docker_output['stdout'] != '',
             docker_output['stderr'] != '',
-            docker_output['return_code'] == '0')
+            docker_output['return_code'] == '0'))
     except KeyError:
         return False
 
