@@ -144,7 +144,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
 
     def _process_included_files(self, file_list, file_object):
         manager = Manager()
-        executor = ThreadPoolExecutor(max_workers=8)
+        executor = ThreadPoolExecutor(max_workers=getattr(config.backend.plugin.get(self.NAME, None), 'max_workers', 8))
         results_dict = manager.dict()
 
         jobs = self._run_analysis_jobs(executor, file_list, file_object, results_dict)
@@ -210,7 +210,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
         return []
 
 
-def process_qemu_job(file_path: str, arch_suffix: str, root_path: Path, results_dict: dict, uid: str):
+def process_qemu_job(file_path: str, arch_suffix: str, root_path: Path, results_dict: dict, uid: str) -> None:
     result = check_qemu_executability(file_path, arch_suffix, root_path)
     if result:
         if uid in results_dict:
@@ -221,7 +221,7 @@ def process_qemu_job(file_path: str, arch_suffix: str, root_path: Path, results_
         results_dict[uid] = {'path': file_path, 'results': tmp_dict}
 
 
-def _valid_execution_in_results(results: dict):
+def _valid_execution_in_results(results: dict) -> bool:
     return any(
         _output_without_error_exists(results[arch][option])
         for arch in results
