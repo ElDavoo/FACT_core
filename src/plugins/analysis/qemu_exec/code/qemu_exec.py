@@ -62,6 +62,7 @@ class AnalysisPlugin(AnalysisBasePlugin):
     VERSION = '0.5.2'
     DEPENDENCIES = ['file_type']  # noqa: RUF012
     FILE = __file__
+    TIMEOUT = 1800
 
     FILE_TYPES = ['application/x-executable', 'application/x-pie-executable', 'application/x-sharedlib']  # noqa: RUF012
     FACT_EXTRACTION_FOLDER_NAME = 'fact_extracted'
@@ -236,7 +237,10 @@ def _valid_execution_in_results(results: dict) -> bool:
 
 def _output_without_error_exists(docker_output: dict[str, str]) -> bool:
     try:
-        return docker_output['stdout'] != '' and (docker_output['return_code'] == '0' or docker_output['stderr'] == '')
+        return any(
+            docker_output['stdout'] != '',
+            docker_output['stderr'] != '',
+            docker_output['return_code'] == '0')
     except KeyError:
         return False
 
@@ -262,14 +266,13 @@ def get_docker_output(arch_suffix: str, file_path: str, root_path: Path) -> dict
     }
     in case of an error, there will be an entry 'error' instead of the entries stdout/stderr/return_code
     """
-    command = f'{arch_suffix} {file_path}'
     try:
         result = run_docker_container(
             DOCKER_IMAGE,
             combine_stderr_stdout=True,
             timeout=TIMEOUT_IN_SECONDS,
             network_disabled=True,
-            command=command,
+            command=[arch_suffix, file_path],
             mounts=[
                 Mount(CONTAINER_TARGET_PATH, str(root_path), type='bind'),
             ],
