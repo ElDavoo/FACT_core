@@ -34,6 +34,7 @@ def build_pdf_report(firmware: Firmware, folder: Path) -> Path:
             'fkiecad/fact_pdf_report',
             combine_stderr_stdout=True,
             mem_limit='512m',
+            network_disabled=True,
             mounts=[
                 Mount('/tmp/interface/', str(folder), type='bind'),
             ],

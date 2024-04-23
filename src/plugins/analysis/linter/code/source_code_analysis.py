@@ -128,6 +128,7 @@ def run_linguist(file_path: str, virtual_file_name: str) -> dict:
         'crazymax/linguist',
         combine_stderr_stdout=True,
         timeout=60,
+        network_disabled=True,
         command=f'--json {container_path}',
         mounts=[
             Mount(container_path, file_path, type='bind'),
