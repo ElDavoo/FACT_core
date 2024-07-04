@@ -117,7 +117,7 @@ def crack_hash(passwd_entry: bytes, result_entry: dict, format_term: str = '') -
         fp.write(passwd_entry)
         fp.seek(0)
         john_process = run_docker_container(
-            'fact/john:alpine-3.19',
+            'fact/john:alpine-3.20',
             command=f'/work/input_file {format_term}',
             network_disabled=True,
             mounts=[
